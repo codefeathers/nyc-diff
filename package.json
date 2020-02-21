@@ -1,0 +1,15 @@
+{
+	"name": "nyc-diff",
+	"version": "0.0.1",
+	"description": "Report coverage for changed lines from a unified diff",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "MKRhere <@MKRhere> (https://mkr.pw)",
+	"contributors": [
+		"Shashank Kaul"
+	],
+	"license": "MIT"
+}
