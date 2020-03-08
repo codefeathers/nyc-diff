@@ -1,3 +1,6 @@
+# CUSTOM
+*.diff
+
 #################### TEMPLATE GIT IGNORE ####################
 # Logs
 logs

@@ -1,5 +1,13 @@
 #! /usr/bin/node
 
+const fs = require("fs");
+
+const { exitWithFailure, exitWithSuccess } = require("./lib/common");
+
+const DIFF_PATH = __dirname + "/branch.diff";
+
+const WORKING_DIR = process.env.WORKING_DIR;
+
 const state = {
 	watch: false,
 	range: {
@@ -18,21 +26,58 @@ const state = {
 	}
 };
 
-const convertAndLog = {
+const write = line => fs.appendFileSync(DIFF_PATH, `${line}\n`);
+
+const convertAndWrite = {
 	src: line => {
-		console.log(String(state.curr.src).padEnd(4, " "), ":", line);
+		write(`${String(state.curr.src).padEnd(4, " ")} : ${line}`);
 		++state.curr.src;
 	},
 	dest: line => {
-		console.log(String(state.curr.dest).padEnd(4, " "), ":", line);
+		write(`${String(state.curr.dest).padEnd(4, " ")} : ${line}`);
 		++state.curr.dest;
 	},
 	neutral: line => {
-		console.log(String(state.curr.dest).padEnd(4, " "), ":", line);
+		write(`${String(state.curr.dest).padEnd(4, " ")} : ${line}`);
 		++state.curr.dest;
 		++state.curr.src;
 	}
 };
+
+const processDiff = () => {
+	if (fs.existsSync(DIFF_PATH)) {
+		return new Promise((resolve, reject) => {
+			const map = [];
+			fs.createReadStream(DIFF_PATH)
+				.on('data', function (chunk) {
+					chunk = chunk.toString();
+					const lines = chunk.split("\n");
+					if (chunk && lines && lines[0] && lines[0] !== "") {
+						const filePathFromRoot = lines[0].replace(/(diff --git )(a\/)|(b\/.*)/gi, "").split(" ")[0];
+						const diffLines = chunk.match(/[0-9]+(\s)+:\s\+/gi);
+						if (diffLines && diffLines instanceof Array) {
+							let lineNumbers;
+							try {
+								lineNumbers = diffLines.map(l => parseInt(l.replace(/(\s)+(:)/g, "")));
+							} catch (err) {
+								exitWithFailure("An error occured while parsing diff for line numbers.")(err);
+							}
+							// eslint-disable-next-line security/detect-object-injection
+							map.push([filePathFromRoot, lineNumbers]);
+						}
+					}
+				})
+				.on("end", function () {
+					resolve(map);
+				})
+				.on("error", function (err) {
+					reject(err);
+				});
+		});
+	} else {
+		return Promise.reject(new Error("No diff found."))
+	}
+}
 
 process.stdin.on("data", data => {
 	const lines = String(data).split("\n");
@@ -53,25 +98,27 @@ process.stdin.on("data", data => {
 			state.watch = true;
 			Object.assign(state.range, { src, dest });
 			Object.assign(state.curr, { src: src.start, dest: dest.start });
-			return console.log(line);
+			return write(line);
 		} else if (state.watch) {
 			if (line.startsWith(" ")) {
-				convertAndLog.neutral(line);
+				convertAndWrite.neutral(line);
 			}
 			if (line.startsWith("+")) {
-				convertAndLog.dest(line);
+				convertAndWrite.dest(line);
 			}
 			if (line.startsWith("-")) {
-				convertAndLog.src(line);
+				convertAndWrite.src(line);
 			}
 			if (line.startsWith("diff")) {
 				state.watch = false;
-				console.log(line);
+				write(line);
 			}
-		} else console.log(line)
+		} else write(line)
 	});
 });
 
+process.stdin.on("close", () => {
+	processDiff()
+		.catch(exitWithFailure("No diff found."));
+});
 
-// console.log("Something here!!!");
-// something here!
