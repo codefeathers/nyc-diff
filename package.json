@@ -1,0 +1,11 @@
+{
+  "name": "nyc-diff",
+  "version": "0.1.0",
+  "description": "Get line-by-line coverage for diff output.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Shashank Kaul <kaulshashank96@gmail.com>",
+  "license": "MIT"
+}
