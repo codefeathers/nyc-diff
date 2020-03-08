@@ -4,80 +4,20 @@ const fs = require("fs");
 
 const { exitWithFailure, exitWithSuccess } = require("./lib/common");
 
-const DIFF_PATH = __dirname + "/branch.diff";
+const diffLineNumbers = require("./tools/diff-line-numbers");
+const parseDiff = require("./tools/parse-diff");
+const compareDiff = require("./tools/compare-diff");
 
 const WORKING_DIR = process.env.WORKING_DIR;
 
-const state = {
-	watch: false,
-	range: {
-		src: {
-			start: 0,
-			end: 0
-		},
-		dest: {
-			start: 0,
-			end: 0
-		}
-	},
-	curr: {
-		src: 0,
-		dest: 0
-	}
-};
+const DIFF_LOCATION = __dirname + "/branch.diff";
 
-const write = line => fs.appendFileSync(DIFF_PATH, `${line}\n`);
-
-const convertAndWrite = {
-	src: line => {
-		write(`${String(state.curr.src).padEnd(4, " ")} : ${line}`);
-		++state.curr.src;
-	},
-	dest: line => {
-		write(`${String(state.curr.dest).padEnd(4, " ")} : ${line}`);
-		++state.curr.dest;
-	},
-	neutral: line => {
-		write(`${String(state.curr.dest).padEnd(4, " ")} : ${line}`);
-		++state.curr.dest;
-		++state.curr.src;
-	}
-};
-
-const processDiff = () => {
-	if (fs.existsSync(DIFF_PATH)) {
-		return new Promise((resolve, reject) => {
-			const map = [];
-			fs.createReadStream(DIFF_PATH)
-				.on('data', chunk => {
-					chunk = chunk.toString();
-					const lines = chunk.split("\n");
-					if (chunk && lines && lines[0] && lines[0] !== "") {
-						const filePathFromRoot = lines[0].replace(/(diff --git )(a\/)|(b\/.*)/gi, "").split(" ")[0];
-						const diffLines = chunk.match(/[0-9]+(\s)+:\s\+/gi);
-						if (diffLines && diffLines instanceof Array) {
-							let lineNumbers;
-							try {
-								lineNumbers = diffLines.map(l => parseInt(l.replace(/(\s)+(:)/g, "")));
-							} catch (err) {
-								exitWithFailure("An error occured while parsing diff for line numbers.")(err);
-							}
-							// eslint-disable-next-line security/detect-object-injection
-							map.push([filePathFromRoot, lineNumbers]);
-						}
-					}
-				})
-				.on("end", () => {
-					resolve(map);
-				})
-				.on("error", err => {
-					reject(err);
-				});
-		});
-	} else {
-		return Promise.reject(new Error("No diff found."))
-	}
-}
+diffLineNumbers(process.stdin, fs.createWriteStream(), () => {
+	parseDiff(DIFF_LOCATION)
+		.then(compareDiff)
+		.then(exitWithSuccess())
+		.catch(exitWithFailure("An error occured!"));
+});
 
 const compareDiff = map => {
 	if (map.length == 0) {

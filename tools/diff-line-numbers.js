@@ -1,4 +1,4 @@
-module.exports = (inputStream, outputStream) => {
+module.exports = (inputStream, outputStream, completionCallback) => {
 	const state = {
 		watch: false,
 		curr: {
@@ -63,5 +63,5 @@ module.exports = (inputStream, outputStream) => {
 		});
 	});
 
-	inputStream.on("end", () => outputStream.end());
+	inputStream.on("end", completionCallback);
 };
