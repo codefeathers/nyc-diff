@@ -10,5 +10,8 @@
 	"contributors": [
 		"Shashank Kaul"
 	],
-	"license": "MIT"
+	"license": "MIT",
+	"bin": {
+		"nyc-diff": "./index.js"
+	}
 }
