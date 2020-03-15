@@ -38,7 +38,7 @@ const DIFF_LOCATION = __dirname + "/branch.diff";
 
 diffLineNumbers(process.stdin, fs.createWriteStream(DIFF_LOCATION))
 	.then(() => parseDiff(DIFF_LOCATION))
-	.then(() => compareDiff(NYC_OUTPUT_LOCATION))
+	.then(map => compareDiff(NYC_OUTPUT_LOCATION, map))
 	.then(result => {
 		if (result && result.length) {
 			fs.writeFileSync(RESULT_PATH, JSON.stringify(result, null, 4));
