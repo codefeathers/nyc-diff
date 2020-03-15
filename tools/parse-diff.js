@@ -10,7 +10,7 @@ module.exports = path => {
 					const lines = chunk.split("\n");
 					if (chunk && lines && lines[0] && lines[0] !== "") {
 						const filePathFromRoot = lines[0].replace(/(diff --git )(a\/)|(b\/.*)/gi, "").split(" ")[0];
-						const diffLines = chunk.match(/[0-9]+(\s)+:\s\+/gi);
+						const diffLines = chunk.match(/[0-9]+(\s){0,}\:(\+)/gi);
 						if (diffLines && diffLines instanceof Array) {
 							let lineNumbers;
 							try {
@@ -18,7 +18,6 @@ module.exports = path => {
 							} catch (err) {
 								exitWithFailure("An error occured while parsing diff for line numbers.")(err);
 							}
-							// eslint-disable-next-line security/detect-object-injection
 							map.push([filePathFromRoot, lineNumbers]);
 						}
 					}
