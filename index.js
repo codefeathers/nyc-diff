@@ -14,7 +14,8 @@ const DIFF_LOCATION = __dirname + "/branch.diff";
 
 diffLineNumbers(process.stdin, fs.createWriteStream(DIFF_LOCATION), () => {
 	parseDiff(DIFF_LOCATION)
-		.then(compareDiff)
+		.then(compareDiff.bind(undefined, NYC_OUTPUT_LOCATION))
+		.then(console.log.bind(undefined, "Result: "))
 		.then(exitWithSuccess())
 		.catch(exitWithFailure("An error occured!"));
 });
