@@ -29,7 +29,7 @@ A JSON file named **nyc-diff-\<unix timestamp\>** will be generated when the dif
 
 ## Options
 
-#### `--nyc-output`
+#### `--project-dir`
 
 This is the location in the local file system where code was instrumented by `nyc`. In most common situations this would be the root of your repository. Otherwise, wherever the `.nyc_output` folder of your `nyc` run is located.
 

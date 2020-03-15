@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const argv = require("minimist")(process.argv.slice(2), {
-	string: ["o", "output", "nyc-output"],
+	string: ["o", "output", "project-dir"],
 });
 
 const { exitWithFailure, exitWithSuccess } = require("./lib/common");
@@ -13,17 +13,14 @@ const diffLineNumbers = require("./tools/diff-line-numbers");
 const parseDiff = require("./tools/parse-diff");
 const compareDiff = require("./tools/compare-diff");
 
-const NYC_OUTPUT_LOCATION =
-	argv["nyc-output"] || path.resolve(process.cwd(), ".nyc_output");
+const NYC_OUTPUT_LOCATION = argv["project-dir"] || process.cwd();
 
-if (!fs.existsSync(NYC_OUTPUT_LOCATION)) {
+if (!fs.existsSync(path.resolve(NYC_OUTPUT_LOCATION, ".nyc_output"))) {
 	exitWithFailure(
 		[
-			`Could not find ${NYC_OUTPUT_LOCATION}.`,
-			`Please run nyc-diff in your repo root, or specify the location where ` +
-				`nyc is being run using the` +
-				" --nyc-output " +
-				`option.`,
+			`Could not find .nyc_output at ${NYC_OUTPUT_LOCATION}.`,
+			`Please run nyc-diff in your repo root, or specify where ` +
+				`nyc is run using the --project-dir option.`,
 			`Check usage instructions at https://github.com/codefeathers/nyc-diff.`,
 		].join("\n\n"),
 	)();

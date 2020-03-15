@@ -1,12 +1,13 @@
 const fs = require("fs");
+const path = require("path");
+
 const { exitWithFailure } = require("../lib/common");
 
 module.exports = (outputLocation, map) => {
-	const nycOutputPath = outputLocation + "/.nyc_output/";
-	const nycIndexPath = nycOutputPath + "processinfo/index.json";
+	const nycOutputPath = path.resolve(outputLocation, ".nyc_output");
+	const nycIndexPath = path.resolve(nycOutputPath, "processinfo", "index.json");
 
 	if (fs.existsSync(nycIndexPath)) {
-
 		// eslint-disable-next-line security/detect-non-literal-require
 		const nycFiles = require(nycIndexPath).files;
 
@@ -15,7 +16,10 @@ module.exports = (outputLocation, map) => {
 		if (nycFiles) {
 			map.forEach(gitFile => {
 				const [filePathFromProjectDir, linesFromGitDiff] = gitFile;
-				const completeFilePath = outputLocation + "/" + filePathFromProjectDir;
+				const completeFilePath = path.resolve(
+					outputLocation,
+					filePathFromProjectDir,
+				);
 
 				let found = false;
 				for (const nycFile in nycFiles) {
@@ -28,29 +32,47 @@ module.exports = (outputLocation, map) => {
 							const uncoveredLines = [];
 							linesFromGitDiff.forEach(l => {
 								for (const statement in statementMap) {
-									if (statementMap[statement] != null
-										&& statementMap[statement].start
-										&& statementMap[statement].end
-										&& (statementMap[statement].start.line <= l && statementMap[statement].end.line >= l)) {
-										if (s[statement] === 0) { // Not covered
+									if (
+										statementMap[statement] != null &&
+										statementMap[statement].start &&
+										statementMap[statement].end &&
+										statementMap[statement].start.line <= l &&
+										statementMap[statement].end.line >= l
+									) {
+										if (s[statement] === 0) {
+											// Not covered
 											uncoveredLines.push(l);
 											break;
 										}
 									}
 								}
 							});
-							if (uncoveredLines.length) diffResultMap.push([filePathFromProjectDir, uncoveredLines]);
+							if (uncoveredLines.length)
+								diffResultMap.push([filePathFromProjectDir, uncoveredLines]);
 						}
 					}
 				}
-				if (!found) console.log(`${filePathFromProjectDir} not instrumented in this test run.`);
+				if (!found)
+					console.log(
+						`${filePathFromProjectDir} not instrumented in this test run.`,
+					);
 			});
 
-			return diffResultMap
+			return diffResultMap;
 		} else {
-			exitWithFailure("`.nyc_output/processinfo/index.json` file does not contain the `files` object.")();
+			exitWithFailure(
+				"`" +
+					path.join(".nyc_output", "processinfo", "index.json") +
+					"`" +
+					" file does not contain the `files` object.",
+			)();
 		}
 	} else {
-		exitWithFailure("`.nyc_output/processinfo/index.json` file was not found in predefined location.")();
+		exitWithFailure(
+			"`" +
+				path.join(".nyc_output", "processinfo", "index.json") +
+				"`" +
+				" file was not found in predefined location.",
+		)();
 	}
-}
+};
