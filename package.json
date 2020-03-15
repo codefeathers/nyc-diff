@@ -1,17 +1,28 @@
 {
 	"name": "nyc-diff",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Get line-by-line coverage for diff output.",
 	"main": "index.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"author": "MKRhere <@MKRhere> (https://mkr.pw)",
+	"author": "Shashank Kaul <@kaulshashank> (https://www.github.com/kaulshashank)",
 	"contributors": [
-		"Shashank Kaul <@kaulshashank> (https://www.github.com/kaulshashank)"
+		"MKRhere <@MKRhere> (https://mkr.pw)"
 	],
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/codefeathers/nyc-diff.git"
+	},
+	"bugs": {
+		"url": "https://github.com/codefeathers/nyc-diff/issues"
+	},
+	"homepage": "https://github.com/codefeathers/nyc-diff#readme",
 	"bin": {
 		"nyc-diff": "./index.js"
+	},
+	"dependencies": {
+		"minimist": "^1.2.5"
 	}
 }

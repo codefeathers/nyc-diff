@@ -10,15 +10,15 @@ npm i -g @codefeathers/nyc-diff
 
 ## Usage
 
-`nyc-diff` reads from stdin. This allows for piping of any diff output into the tool. An example of usage with git-diff is shown below
+You can pipe any unified diff output into the `nyc-diff` via stdin. An example of usage with git-diff is shown below:
 
 ```
-git diff -w <commit>...<commit> | <env vars> nyc-diff
+git diff -w <commit-ish>...<commit-ish> | nyc-diff [options]
 ```
 
 ### Output
 
-A JSON file named **nyc-diff-\<unix timestamp\>** will be generated when the diff is calculated succesfully in the format shown below. The name of the file can be modified as well by modifying the `NYCDIFF_RESULT_PATH` env variable which is discussed below.
+A JSON file named **nyc-diff-\<unix timestamp\>** will be generated when the diff is calculated succesfully in the format shown below. The path of the file can be modified as well by modifying the `--output` option.
 
 ```
 [
@@ -27,11 +27,15 @@ A JSON file named **nyc-diff-\<unix timestamp\>** will be generated when the dif
 ]
 ```
 
-## Environment Variables
+## Options
 
-* `NYCDIFF_NYC_OUTPUT_LOCATION` (required): This is the location in the local file system where code was instrumented by `nyc`. In most common situations this would be the root of your repository. Otherwise, wherever the `.nyc_output` folder of your `nyc` run is located.
+#### `--nyc-output`
 
-* `NYCDIFF_RESULT_PATH` (optional): Path at which the resultant JSON will be written to. This defaults to the directory provided in the `NYCDIFF_NYC_OUTPUT_LOCATION`.
+This is the location in the local file system where code was instrumented by `nyc`. In most common situations this would be the root of your repository. Otherwise, wherever the `.nyc_output` folder of your `nyc` run is located.
+
+#### `--output / -o`
+
+Path at which the resultant JSON will be written to as `.nyc-diff-\<unix-timestamp\>`. This defaults next to the same directory as `.nyc_output`.
 
 ## Limitations
 
