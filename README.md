@@ -5,7 +5,7 @@ Make sure every addition and modification is covered with nyc-diff by reporting 
 ## Installation
 
 ```
-npm i -g @codefeathers/nyc-diff
+npm i -g nyc-diff
 ```
 
 ## Usage

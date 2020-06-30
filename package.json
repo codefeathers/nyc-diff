@@ -1,6 +1,6 @@
 {
 	"name": "nyc-diff",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Get line-by-line coverage for diff output.",
 	"main": "index.js",
 	"scripts": {
